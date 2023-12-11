@@ -1,6 +1,7 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
 
+
 void main() {
   runApp(const MyApp());
 }
@@ -45,6 +46,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    assetsAudioPlayer.playlistAudioFinished.listen((data) {
+      print('playlistAudioFinished : $data');
+      int currentindex=data.index;
+      onPlayButtonPressed(currentindex);
+      isPlaying=!isPlaying;
+
+      print('----------------------------- : $currentindex');
+
+    });
+    assetsAudioPlayer.audioSessionId.listen((sessionId) {
+      print('audioSessionId : $sessionId' );
+      print('-------------------------------------' );
+
+    });
     assetsAudioPlayer.open(
       Playlist(audios: [
         Audio("assets/sounds/sample.mp3"),
@@ -54,21 +69,41 @@ class _MyHomePageState extends State<MyHomePage> {
         Audio("assets/sounds/sample4.wav"),
       ]),
       autoStart: false,
-      loopMode: LoopMode.none,
+
+      loopMode: LoopMode.playlist,
     );
-    // assetsAudioPlayer.playlistFinished.listen((event) {
-    //   onFinished();
-    //   print("----------------------finished");
-    // });
+   
     super.initState();
   }
+//
+//   void onFinished() {
+//     for (int i =0;i<-audios.length;i++){
+//
+//     }
+// // onPlayButtonPressed(assetsAudioPlayer.current);
+//   }
+  onPlayButtonPressed(int index){
+    setState(() {
+              isPlaying = !isPlaying;
+              selectedIndex = index;
+              print(
+                  "----------------------selected index= $selectedIndex");
 
-  // void onFinished() {
-  //   setState(() {
-  //     // isPlaying = false;
-  //   });
-  // }
-
+              if (assetsAudioPlayer.isPlaying.value) {
+                assetsAudioPlayer.pause();
+              } else {
+                // assetsAudioPlayer.play()
+                assetsAudioPlayer
+                    .playlistPlayAtIndex(index); // isPlaying=true;
+              }
+            });
+  }
+  @override
+  void dispose() {
+    assetsAudioPlayer.dispose();
+    print('dispose');
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,23 +115,25 @@ class _MyHomePageState extends State<MyHomePage> {
         itemCount: audios.length,
         itemBuilder: (BuildContext context, int index) {
           return Card(
-            child: ListTile(
+            child:
+            ListTile(
               trailing: IconButton(
                 onPressed: () {
-                  setState(() {
-                    isPlaying = !isPlaying;
-                    selectedIndex = index;
-                    print(
-                        "----------------------selected index= $selectedIndex");
-
-                    if (assetsAudioPlayer.isPlaying.value) {
-                      assetsAudioPlayer.pause();
-                    } else {
-                      // assetsAudioPlayer.play()
-                      assetsAudioPlayer
-                          .playlistPlayAtIndex(index); // isPlaying=true;
-                    }
-                  });
+                  onPlayButtonPressed(index);
+                  // setState(() {
+                  //   isPlaying = !isPlaying;
+                  //   selectedIndex = index;
+                  //   print(
+                  //       "----------------------selected index= $selectedIndex");
+                  //
+                  //   if (assetsAudioPlayer.isPlaying.value) {
+                  //     assetsAudioPlayer.pause();
+                  //   } else {
+                  //     // assetsAudioPlayer.play()
+                  //     assetsAudioPlayer
+                  //         .playlistPlayAtIndex(index); // isPlaying=true;
+                  //   }
+                  // });
                 },
                 icon: isPlaying && selectedIndex == index
                     ? Icon(
@@ -109,13 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text("${audios[index]}"),
             ),
 
-            //costum list tile but set state should be here not in the other class
-            // CustomAudioListTile(
-            //   isPlaying: isPlaying,
-            //   currentIndex: index,
-            //   selectedIndex: index,
-            //   assetsAudioPlayer: assetsAudioPlayer,
-            //   audios: audios,),
+            
           );
         },
       ),
