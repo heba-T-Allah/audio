@@ -49,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
     assetsAudioPlayer.playlistAudioFinished.listen((data) {
       print('playlistAudioFinished : $data');
       int currentindex=data.index;
-      onPlayButtonPressed(currentindex);
+      onPlayButtonPressed(currentindex+1);
       isPlaying=!isPlaying;
 
       print('----------------------------- : $currentindex');
@@ -75,13 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
    
     super.initState();
   }
-//
-//   void onFinished() {
-//     for (int i =0;i<-audios.length;i++){
-//
-//     }
-// // onPlayButtonPressed(assetsAudioPlayer.current);
-//   }
+
   onPlayButtonPressed(int index){
     setState(() {
               isPlaying = !isPlaying;
